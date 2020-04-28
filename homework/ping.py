@@ -10,8 +10,7 @@ def ip_is_valid(ip):
         return False
     
 
-def ping(ip):
-    
+def ping(ip):    
     if not ip_is_valid(ip):
         #print('false')
         return False

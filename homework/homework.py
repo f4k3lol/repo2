@@ -1,18 +1,10 @@
 '''
-Необходимо:
-1. Собрать со всех устройств файлы конфигураций, сохранить их на диск, используя
-имя устройства и текущую дату в составе имени файла.
-2. Проверить на всех коммутаторах - включен ли протокол CDP и есть ли у процесса
-CDP на каждом из устройств данные о соседях.
-3. Проверить, какой тип программного обеспечения (NPE или PE)* используется на
-устройствах и собрать со всех устройств данные о версии используемого ПО.
-4. Настроить на всех устройствах timezone GMT+0, получение данных для
-синхронизации времени от источника во внутренней сети, предварительно проверив
-его доступность.
-5. Вывести отчет в виде нескольких строк, каждая из которых имеет следующий
-формат, близкий к такому:
-Имя устройства - тип устройства - версия ПО - NPE/PE - CDP on/off, X peers - NTP in
-sync/not sync. 
+Параметры сети:
+3 маршрутизатора 192.168.0.81-83
+Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.5(2)T
+3 коммутатора 192.168.0.91-93
+Cisco IOS Software, Linux Software (I86BI_LINUXL2-ADVENTERPRISEK9-M), Version 15.2(CML_NIGHTLY_20151103)FLO_DSGS7
+https://yadi.sk/d/tNqtBRevhyzArg - топология
 '''
 import netmiko
 import jinja2
@@ -98,18 +90,13 @@ def set_ntp(ntp_server):
         elif 'Clock is synchronized' in command_output:
             result = bad_ntp + 'Clock in Sync'
         summary[hostname].append(result)
-    
-    
-    #pprint(outputs_list)
-        
-   
-
+ 
 nch = NetmikoConnectionsHandler(devices, workers=6)
 nch.open_connections()
 
 summary = {}
 save_configs_to_files()
-get_ios_info()
+get_ios_info() #тут я не знал что доставать по платформе, поэтому ничего не стал делать
 get_cdp_info()
 set_ntp('192.168.0.81')
 

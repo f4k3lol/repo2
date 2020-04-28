@@ -1,18 +1,16 @@
-
-
-
+'''
+Писал на коленке)
+Класс для обработки нескольких подключений netmiko параллельно
+'''
 import netmiko
 import jinja2
 import textfsm
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 import yaml
-from netmiko import ConnectHandler
-import netmiko
 from pprint import pprint
 import logging
 import os
-import netmiko
 import time
 from netmiko.cisco.cisco_ios import CiscoIosBase
 from ping import ping
@@ -157,12 +155,3 @@ class NetmikoConnectionsHandler:
 with open('devices.yaml') as f:
     devices = yaml.safe_load(f)
 
-#ssh = NetmikoConnection(**devices[0])
-#pprint(ssh.send_command('sh ip int br'))
-#pprint(ssh.send_show_commands(['sh clock', 'sh ip int br']))
-#pprint(ssh.send_config_set(['ip host aaa 1.1.1.1', 'ip host bbb 2.2.2.2']))
-#nch = NetmikoConnectionHandler(devices)
-#nch.open_connections()
-#pprint(nch.send_command_to_devices('sh clock'))
-#pprint(nch.send_config_commands_to_devices(['ip host aaa 1.1.1.1', 'ip host bbb 2.2.2.2']))
-#nch.close_connections()
