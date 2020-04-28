@@ -15,6 +15,7 @@ import os
 import netmiko
 import time
 from netmiko.cisco.cisco_ios import CiscoIosBase
+from ping import ping
 
 def log(message):
     logging.basicConfig(
@@ -86,13 +87,14 @@ class NetmikoConnectionsHandler:
             devices[ip] = [connection_is_ok]
             if not connection_is_ok:                
                 continue
-
+            connection.exit_config_mode()
             #connection.config_mode()
             results_list = []
             for cmd in commands:
                 command_dict = {}
-                command_dict[cmd] = cmd
+                command_dict['command'] = cmd
                 command_dict['output'] = connection.send_command(cmd)
+                command_dict['hostname'] = connection.find_prompt()[:-1]
                 command_dict['command_is_ok'] = self._command_is_ok(command_dict['output'], command_dict['output'])
                 results_list.append(command_dict)
             devices[ip].append(results_list)
@@ -112,7 +114,7 @@ class NetmikoConnectionsHandler:
                     'ip host bbb 2.2.2.2': 'ip host bbb 2.2.2.2',
                     'output': ''}]],
  '                  192.168.0.93': [False]}
-        '''
+        '''   
         if type(commands) == str:
             commands = [commands]    
         devices = {}   
@@ -129,14 +131,15 @@ class NetmikoConnectionsHandler:
             results_list = []
             for cmd in commands:
                 command_dict = {}
-                command_dict[cmd] = cmd
+                command_dict['command'] = cmd
                 command_dict['output'] = connection.send_command(cmd)
+                command_dict['hostname'] = connection.find_prompt()[:-1]
                 command_dict['command_is_ok'] = self._command_is_ok(command_dict['output'], command_dict['output'])
                 results_list.append(command_dict)
             devices[ip].append(results_list)
                 
         #devices.append(connection_dict)
-        pprint(devices)
+        #pprint(devices)
         return devices
 
     def _command_is_ok(self, command, output):
