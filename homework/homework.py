@@ -76,7 +76,7 @@ def get_ios_info():
 def set_ntp(ntp_server):
     bad_ntp = ''
     if ping(ntp_server):    
-        nch.send_config_commands(f'ntp server {ntp_server}')
+        nch.send_config_commands(['clock timezone GMT 0', f'ntp server {ntp_server}'])        
     else:
         print('ping failed')
         bad_ntp += 'Bad NTP Server, '
