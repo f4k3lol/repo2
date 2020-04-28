@@ -41,7 +41,7 @@ class NetmikoConnection(CiscoIosBase):
         return super().send_config_set(commands)
 
             
-class NetmikoConnectionHandler:
+class NetmikoConnectionsHandler:
     def __init__(self, devices, workers=6):
         self.devices = devices
         self.workers = workers
@@ -50,7 +50,7 @@ class NetmikoConnectionHandler:
     def _open_connection(self, device):
         try:
             log("opening connection")
-            ssh = NetmikoConnection(**device)            
+            ssh = NetmikoConnection(**device)
             return device['ip'], ssh           
         except (netmiko.ssh_exception.NetMikoAuthenticationException, 
             netmiko.ssh_exception.NetMikoTimeoutException) as e:
@@ -63,43 +63,88 @@ class NetmikoConnectionHandler:
         self.connections = list(executor.map(self._open_connection, self.devices))
         #pprint(self.connections)
 
-    def send_command_to_devices(self, command):
-        '''con[0] device_ip, con[1] - connection
-        RETURNS:
-        - - 192.168.0.81
-            - connection_is_ok = True
-            command = 'sh cloack'
-            command_is_ok = False
-            output = 'error'
-            - command = 'sh clock'
-            command_is_ok = True
-            output = 'error'
-        - 192.168.0.81: False
-        '''
-        result = {}
+    def send_show_commands(self, commands):
+        '''self.connections[i][0] device_ip, self.connections[i][1] - connection
+            RETURNS:
+            '192.168.0.92': [True,
+                  [{'command_is_ok': True,
+                    'ip host aaa 1.1.1.1': 'ip host aaa 1.1.1.1',
+                    'output': ''},
+                   {'command_is_ok': True,
+                    'ip host bbb 2.2.2.2': 'ip host bbb 2.2.2.2',
+                    'output': ''}]],
+ '                  192.168.0.93': [False]}
+        '''   
+        if type(commands) == str:
+            commands = [commands]    
+        devices = {}   
         for con in self.connections:
-            con_dict = {}
-            if type(con[1]) != str: #connection is ok                
-                con_dict['connection_is_ok'] = True
-                con_dict['command'] = command
-                con_dict['command_is_ok'] = True
-                con_dict['output'] = con[1]
-                result[con[0]] = con_dict
-            else:                             
-                con_dict = {}
-                con_dict['connection_is_ok'] = False
-                result[con[0]] = con_dict
-        return result
+            ip = con[0]
+            connection = con[1]
+           
+            connection_is_ok = type(connection) != str 
+            devices[ip] = [connection_is_ok]
+            if not connection_is_ok:                
+                continue
 
-    def send_config_set_to_devices(self, commands):
-        result = {}
-        for con in self.connections:
+            #connection.config_mode()
+            results_list = []
             for cmd in commands:
-                if type(con[1]) == str:
-                    result.append((con[0], cmd, con[1]))
-                    continue
-                result.append((con[0], cmd, con[1].send_command(cmd)))
-        return result
+                command_dict = {}
+                command_dict[cmd] = cmd
+                command_dict['output'] = connection.send_command(cmd)
+                command_dict['command_is_ok'] = self._command_is_ok(command_dict['output'], command_dict['output'])
+                results_list.append(command_dict)
+            devices[ip].append(results_list)
+                
+        #devices.append(connection_dict)
+        #pprint(devices)
+        return devices
+
+    def send_config_commands(self, commands):
+        '''self.connections[i][0] device_ip, self.connections[i][1] - connection
+            RETURNS:
+            '192.168.0.92': [True,
+                  [{'command_is_ok': True,
+                    'ip host aaa 1.1.1.1': 'ip host aaa 1.1.1.1',
+                    'output': ''},
+                   {'command_is_ok': True,
+                    'ip host bbb 2.2.2.2': 'ip host bbb 2.2.2.2',
+                    'output': ''}]],
+ '                  192.168.0.93': [False]}
+        '''
+        if type(commands) == str:
+            commands = [commands]    
+        devices = {}   
+        for con in self.connections:
+            ip = con[0]
+            connection = con[1]
+           
+            connection_is_ok = type(connection) != str 
+            devices[ip] = [connection_is_ok]
+            if not connection_is_ok:                
+                continue
+
+            connection.config_mode()
+            results_list = []
+            for cmd in commands:
+                command_dict = {}
+                command_dict[cmd] = cmd
+                command_dict['output'] = connection.send_command(cmd)
+                command_dict['command_is_ok'] = self._command_is_ok(command_dict['output'], command_dict['output'])
+                results_list.append(command_dict)
+            devices[ip].append(results_list)
+                
+        #devices.append(connection_dict)
+        pprint(devices)
+        return devices
+
+    def _command_is_ok(self, command, output):
+        bad_outputs = ['Invalid input detected', 'Incomplete command', 'Ambiguous command']
+        for bo in bad_outputs:
+            if bo in output:
+                return False
+        return True
 
     def close_connections(self):
         for con in self.connections:
@@ -113,8 +158,8 @@ with open('devices.yaml') as f:
 #pprint(ssh.send_command('sh ip int br'))
 #pprint(ssh.send_show_commands(['sh clock', 'sh ip int br']))
 #pprint(ssh.send_config_set(['ip host aaa 1.1.1.1', 'ip host bbb 2.2.2.2']))
-nch = NetmikoConnectionHandler(devices)
-nch.open_connections()
-pprint(nch.send_command_to_devices('sh clock'))
-#pprint(nch.send_config_set_to_devices(['ip host aaa 1.1.1.1', 'ip host bbb 2.2.2.2']))
-nch.close_connections()
+#nch = NetmikoConnectionHandler(devices)
+#nch.open_connections()
+#pprint(nch.send_command_to_devices('sh clock'))
+#pprint(nch.send_config_commands_to_devices(['ip host aaa 1.1.1.1', 'ip host bbb 2.2.2.2']))
+#nch.close_connections()

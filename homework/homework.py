@@ -25,15 +25,25 @@ import netmiko
 from pprint import pprint
 import logging
 import os
+import sys
+from NetmikoConnectionsHandler import NetmikoConnectionsHandler
 
-with open('../devices.yaml') as f:
+with open('devices.yaml') as f:
     devices = yaml.safe_load(f)
 
-try:
-    with ConnectHandler(devices) as ssh:
-        ssh.enable()
-        
+def save_configs_to_files(nch: NetmikoConnectionsHandler):
+    outputs_dict = nch.send_show_commands('sh run')
+    #pprint(outputs_dict)
+    for device_outputs in outputs_dict.items():
+        device_ip = device_outputs[0]
+        device_connection_status = device_outputs[1][0]
+        commands = device_outputs[1][1]
+        for cmd_output in comm
 
-except (netmiko.ssh_exception.NetMikoAuthenticationException, 
-    netmiko.ssh_exception.NetMikoTimeoutException) as e:
-    print('Error!: ', e)        
+
+
+   
+nch1 = NetmikoConnectionsHandler(devices)
+nch1.open_connections()
+save_configs_to_files(nch1)
+
