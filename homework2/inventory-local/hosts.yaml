@@ -1,0 +1,58 @@
+R1:
+  hostname: 192.168.111.11
+  groups: 
+    - routers
+  data:
+    tags:
+      - iol15.5
+      - id1
+R2:
+  hostname: 192.168.111.12
+  groups: 
+    - routers
+  data:
+    tags:
+      - iol15.5
+      - id2
+R3:
+  hostname: 192.168.111.13
+  groups: 
+    - routers
+  data:
+    tags:
+      - iol15.5
+      - id3
+S1:
+  hostname: 192.168.111.21
+  groups: 
+    - switches
+  data:
+    tags:
+      - iol15.2
+      - id1
+S2:
+  hostname: 192.168.111.22
+  groups: 
+    - switches
+  data:
+    tags:
+      - iol15.2
+      - id2
+S3:
+  hostname: 192.168.111.23
+  groups: 
+    - switches
+  data:
+    tags:
+      - iol15.2
+      - id3
+S4:
+  hostname: 192.168.111.24
+  groups: 
+    - switches
+  data:
+    tags:
+      - iol15.2
+      - id4
+
+  

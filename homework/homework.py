@@ -96,7 +96,7 @@ nch.open_connections()
 
 summary = {}
 save_configs_to_files()
-get_ios_info() #тут я не знал что доставать по платформе, поэтому ничего не стал делать
+get_ios_info() #тут я не знал что доставать из IOU по платформе, поэтому ничего не стал делать
 get_cdp_info()
 set_ntp('192.168.0.81')
 

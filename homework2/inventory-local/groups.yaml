@@ -1,0 +1,10 @@
+routers:
+  data:
+    ntp:
+      servers:
+        - 1.2.3.4
+switches:
+  data:
+    ntp:
+      servers:
+        - 5.6.7.8
